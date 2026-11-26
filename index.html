@@ -11,9 +11,13 @@ body{margin:0;overflow:hidden;background:#bfe9ff;font-family:'Fredoka',ui-rounde
 #c{bottom:14px;left:50%;transform:translateX(-50%);font-weight:500;font-size:14px;white-space:nowrap}
 #ci{display:none;position:fixed;bottom:62px;left:50%;transform:translateX(-50%);width:min(420px,86vw);padding:10px 16px;
  border:3px solid #ffb86b;border-radius:999px;font:500 18px 'Fredoka',system-ui;outline:none;color:#5a4636}
+#m{display:none;top:64px;left:50%;transform:translateX(-50%);font-size:clamp(17px,3.2vw,26px);background:#ffd54a;color:#5a4636;white-space:nowrap}
+#ar{display:none;position:fixed;top:122px;left:50%;transform:translateX(-50%);text-align:center;font-weight:700;color:#fff;text-shadow:0 2px 4px #0008;pointer-events:none}
+#ag{font-size:46px;line-height:1.1;color:#ffd54a;text-shadow:0 3px 0 #b3811f}
+#res{display:none;position:fixed;top:122px;left:50%;transform:translateX(-50%);background:#fffe;color:#5a4636;border-radius:18px;padding:14px 22px;font-weight:500;font-size:17px;line-height:1.6;box-shadow:0 4px 0 #0002;pointer-events:none}
 </style></head><body>
-<div id="t" class="pill">Piso 5</div><div id="n" class="pill"></div>
-<div id="c" class="pill">WASD mover · Q/E o arrastrar: cámara · 1-4: emotes · Enter: chat</div>
+<div id="t" class="pill">Piso 5</div><div id="n" class="pill"></div><div id="m" class="pill"></div><div id="ar"><div id="ag">▲</div><div id="ad"></div></div><div id="res"></div>
+<div id="c" class="pill">WASD mover · Q/E o arrastrar: cámara · 1-4: emotes · Enter: chat · B: campana de reunión</div>
 <input id="ci" maxlength="40" placeholder="Escribe y pulsa Enter" autocomplete="off">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -115,6 +119,8 @@ function desk(x1, y1, x2, y2) {
       ch.position.set(X(cx), 0, Z(cy)); ch.rotation.y = hor ? (s < 0 ? Math.PI : 0) : (s < 0 ? -Math.PI / 2 : Math.PI / 2); scene.add(ch);
       const mx = hor ? x1 + t : (s < 0 ? x1 + 4 : x2 - 4), my = hor ? (s < 0 ? y1 + 4 : y2 - 4) : y1 + t;
       const mo = new THREE.Mesh(new THREE.BoxGeometry(hor ? .55 : .08, .4, hor ? .08 : .55), M(0x2f3542)); mo.position.set(X(mx), 1, Z(my)); scene.add(mo);
+      const off = (t + 9 < len - 4) ? .9 : -.9;
+      decor((i * 3 + (s > 0 ? 1 : 0) + (x1 / 10 | 0)) % 6, X(mx) + (hor ? off : 0), Z(my) + (hor ? 0 : off));
     });
   }
 }
@@ -134,11 +140,65 @@ function plant(px, py) {
  [430, 365, 520, 388], [430, 402, 520, 425],
  [190, 440, 210, 505], [255, 440, 275, 505], [320, 440, 340, 505], [390, 440, 410, 505],
  [175, 555, 225, 573], [245, 555, 295, 573], [315, 555, 365, 573], [385, 555, 435, 573]].forEach(r => desk(...r));
-rtable(177, 75, 28, 20, 8); rtable(82, 474, 22, 16, 6); rtable(583, 460, 12, 20, 6);
+rtable(177, 75, 28, 20, 8); rtable(82, 474, 22, 16, 6); rtable(583, 460, 8, 14, 6);
 rtable(305, 82, 11, 11, 4); rtable(355, 82, 11, 11, 4);
 couch(55, 128, 85, 170, 0xff9bb6); couch(55, 200, 85, 243, 0x8fd3ff);
 box(536, 300, 552, 350, 1.4, 0xe0b98a); box(48, 260, 64, 320, 1.4, 0xe0b98a);
 [[100, 320], [470, 470], [250, 110], [500, 330]].forEach(p => plant(...p));
+
+
+// ---- Decoración de escritorio y objetos raros
+function decor(k, x, z) {
+  const g = new THREE.Group(), add = (geo, c, px, py, pz, ry) => { const m = new THREE.Mesh(geo, M(c)); m.position.set(px, py, pz); if (ry) m.rotation.y = ry; g.add(m); return m; };
+  if (k === 0) { add(new THREE.CylinderGeometry(.1, .09, .16, 10), CH[Math.abs(Math.round(x * 3 + z)) % 5], 0, .83, 0); const h = add(new THREE.TorusGeometry(.055, .015, 6, 10), 0xffffff, .12, .83, 0); }
+  if (k === 1) { add(new THREE.CylinderGeometry(.1, .08, .14, 10), 0xd9825b, 0, .82, 0); add(new THREE.SphereGeometry(.12, 8, 6), 0x4fbf6a, 0, .98, 0); }
+  if (k === 2) { add(new THREE.BoxGeometry(.34, .03, .26), 0xffffff, 0, .765, 0, .3); add(new THREE.BoxGeometry(.3, .03, .24), 0xbfe3ff, 0, .795, 0, -.2); }
+  if (k === 3) { add(new THREE.SphereGeometry(.11, 10, 8), 0xffe14a, 0, .86, 0); add(new THREE.SphereGeometry(.07, 8, 6), 0xffe14a, .06, .98, 0); const b = add(new THREE.ConeGeometry(.025, .06, 6), 0xff9b3d, .14, .98, 0); b.rotation.z = -Math.PI / 2; }
+  if (k === 4) { add(new THREE.CylinderGeometry(.1, .12, .04, 10), 0x555a66, 0, .77, 0); add(new THREE.CylinderGeometry(.015, .015, .4, 6), 0x555a66, 0, .97, 0); const sh = add(new THREE.ConeGeometry(.13, .14, 12), 0xffd54a, 0, 1.2, 0); sh.rotation.x = Math.PI; }
+  if (k === 5) { add(new THREE.BoxGeometry(.3, .05, .22), 0xff8a80, 0, .775, 0); add(new THREE.BoxGeometry(.28, .05, .2), 0x6ec6ff, 0, .825, 0, .15); add(new THREE.BoxGeometry(.26, .05, .2), 0xffd166, 0, .875, 0, -.1); }
+  g.position.set(x, 0, z); scene.add(g);
+}
+function place(g, px, py, rot, w, d) {
+  g.position.set(X(px), 0, Z(py)); g.rotation.y = rot; g.traverse(o => { if (o.isMesh) o.castShadow = true; }); scene.add(g);
+  if (w) cols.push([X(px) - w / 2, Z(py) - d / 2, X(px) + w / 2, Z(py) + d / 2]);
+}
+function bar(a, b, r, c) {
+  const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, d.length(), 6), M(c));
+  m.position.copy(A).add(B).multiplyScalar(.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); return m;
+}
+function cart(px, py, rot) {
+  const g = new THREE.Group(), add = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); g.add(o); return o; };
+  add(new THREE.BoxGeometry(.75, .5, 1.05), new THREE.MeshLambertMaterial({ color: 0xcfd5df, transparent: true, opacity: .6 }), 0, .85, 0);
+  add(new THREE.BoxGeometry(.8, .05, 1.1), M(0x8a93a3), 0, .55, 0);
+  add(new THREE.SphereGeometry(.22, 10, 8), M(0x6fcf6a), -.12, .8, -.1); add(new THREE.BoxGeometry(.25, .35, .12), M(0xffc83d), .18, .8, .1);
+  add(new THREE.CylinderGeometry(.04, .04, .8, 8), M(0xff5a4d), 0, 1.25, .62).rotation.z = Math.PI / 2;
+  [[-.3, -.45], [.3, -.45], [-.3, .45], [.3, .45]].forEach(([a, c]) => add(new THREE.CylinderGeometry(.08, .08, .06, 10), M(0x333844), a, .1, c).rotation.z = Math.PI / 2);
+  place(g, px, py, rot, 1.2, 1.2);
+}
+function bike(px, py, rot, col) {
+  const g = new THREE.Group(), C = col, T = (z) => { const w = new THREE.Mesh(new THREE.TorusGeometry(.42, .035, 8, 22), M(0x2b2b3a)); w.rotation.y = Math.PI / 2; w.position.set(0, .45, z); g.add(w); };
+  T(-.6); T(.6);
+  [[[0, .45, -.6], [0, .35, -.1]], [[0, .35, -.1], [0, .95, -.35]], [[0, .95, -.35], [0, .95, .4]], [[0, .35, -.1], [0, .95, .4]], [[0, .45, -.6], [0, .95, -.35]], [[0, .45, .6], [0, .95, .4]], [[0, .95, .4], [0, 1.08, .42]], [[-.26, 1.08, .42], [.26, 1.08, .42]]]
+    .forEach(([a, b]) => g.add(bar(a, b, .025, C)));
+  const sd = new THREE.Mesh(new THREE.BoxGeometry(.12, .04, .26), M(0x2b2b3a)); sd.position.set(0, .99, -.38); g.add(sd);
+  place(g, px, py, rot, rot ? 1.7 : .5, rot ? .5 : 1.7);
+}
+function skate(px, py, rot) {
+  const g = new THREE.Group(), d = new THREE.Mesh(new THREE.BoxGeometry(.5, .05, 1.4), M(0xff7ab0)); d.position.y = .15; g.add(d);
+  const gr = new THREE.Mesh(new THREE.BoxGeometry(.48, .01, 1.38), M(0x2b2b3a)); gr.position.y = .18; g.add(gr);
+  [[-.2, -.45], [.2, -.45], [-.2, .45], [.2, .45]].forEach(([a, c]) => { const w = new THREE.Mesh(new THREE.SphereGeometry(.07, 8, 6), M(0xfff1c0)); w.position.set(a, .07, c); g.add(w); });
+  place(g, px, py, rot, 0);
+}
+function cone(px, py) {
+  const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.4, .04, .4), M(0xff7a1a)); b.position.y = .02; g.add(b);
+  const c = new THREE.Mesh(new THREE.ConeGeometry(.17, .55, 12), M(0xff7a1a)); c.position.y = .3; g.add(c);
+  const w = new THREE.Mesh(new THREE.CylinderGeometry(.115, .13, .09, 12), M(0xffffff)); w.position.y = .27; g.add(w);
+  place(g, px, py, 0, .4, .4);
+}
+cart(135, 370, .4); cart(520, 95, -.5);
+bike(510, 520, Math.PI / 2, 0x2bb5a8); bike(560, 340, 0, 0xff6f9c);
+skate(300, 525, .6); skate(200, 330, -.4); skate(480, 100, 1.1);
+cone(470, 445); cone(150, 330); cone(285, 535);
 
 function collide() {
   const r = .45;
@@ -227,9 +287,9 @@ ws.onmessage = e => {
   const d = JSON.parse(e.data);
   if (d.t === 'welcome') { myId = d.id; mine = avatar(d.color, name, d.id); scene.add(mine); toStart(); }
   if (d.t !== 's') return;
-  const seen = new Set();
+  mt = d.m; const seen = new Set();
   d.players.forEach(p => {
-    if (p.id === myId) return; seen.add(p.id);
+    if (p.id === myId) { myScore = p.score || 0; return; } seen.add(p.id);
     let a = others.get(p.id);
     if (!a) { a = avatar(p.color, p.name, p.id); a.position.set(p.x, 0, p.z); scene.add(a); others.set(p.id, a); a.userData.sid = p.sid; a.userData.eid = p.eid; }
     a.tg = p; const u = a.userData;
@@ -248,6 +308,7 @@ addEventListener('keydown', e => {
   }
   if (e.key === 'Enter') { ci.style.display = 'block'; ci.focus(); for (const c in k) k[c] = 0; e.preventDefault(); return; }
   k[e.code] = 1;
+  if (e.code === 'KeyB') send({ t: 'bell' });
   if (/^Digit[1-4]$/.test(e.code) && mine) { const n = +e.code.slice(5); send({ t: 'emote', e: n }); startEmote(mine, n); }
 });
 addEventListener('keyup', e => k[e.code] = 0);
@@ -256,6 +317,40 @@ R.domElement.addEventListener('pointerdown', e => drag = e.clientX);
 addEventListener('pointerup', () => drag = null);
 addEventListener('pointermove', e => { if (drag !== null) { cy -= (e.clientX - drag) * .006; drag = e.clientX; } });
 addEventListener('resize', () => { R.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); });
+
+
+// ---- Reto: llamado a reunión
+const ROOMS = [null, { name: 'Sala 1', x: -14.7, z: -25, r: 2.7 }, { name: 'Sala 2', x: -23.7, z: 14.8, r: 3.2 }, { name: 'Sala 3', x: 26.05, z: 13.5, r: 1.35 }];
+const beacons = ROOMS.map(r => {
+  if (!r) return null; const g = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.RingGeometry(r.r - .3, r.r, 36), new THREE.MeshBasicMaterial({ color: 0xffd54a, side: THREE.DoubleSide, transparent: true, opacity: .9 })); ring.rotation.x = -Math.PI / 2; ring.position.y = .08; g.add(ring);
+  const col = new THREE.Mesh(new THREE.CylinderGeometry(r.r, r.r, 6, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd54a, transparent: true, opacity: .2, side: THREE.DoubleSide, depthWrite: false })); col.position.y = 3; g.add(col);
+  g.position.set(r.x, 0, r.z); g.visible = false; scene.add(g); return g;
+});
+let mt = null, myScore = 0, lastPh = 'idle';
+const $ = id => document.getElementById(id), mb = $('m'), arEl = $('ar'), agEl = $('ag'), adEl = $('ad'), resEl = $('res'), esc = s => String(s).replace(/</g, '&lt;');
+function ding() {
+  try { const a = new (window.AudioContext || window.webkitAudioContext)(), t = a.currentTime;
+    [880, 1175].forEach((f, i) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = f; o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(.15, t + i * .18); g.gain.exponentialRampToValueAtTime(.001, t + i * .18 + .5); o.start(t + i * .18); o.stop(t + i * .18 + .5); }); } catch (e) {}
+}
+function meetHud() {
+  const ph = mt ? mt.ph : 'idle';
+  if (ph !== lastPh) { if (ph === 'call') ding(); lastPh = ph; }
+  beacons.forEach((b, i) => { if (b) b.visible = ph === 'call' && mt.room === i; });
+  if (ph === 'call') {
+    const rm = ROOMS[mt.room], left = Math.max(0, Math.ceil(mt.dur - mt.el));
+    mb.style.display = 'block'; resEl.style.display = 'none'; arEl.style.display = 'block';
+    mb.textContent = '🔔 ¡Reunión en ' + rm.name + '! ' + left + ' s — ' + mt.got + '/' + mt.tot + ' ya llegaron';
+    if (mt.ids.includes(myId)) { agEl.style.transform = ''; agEl.textContent = '✅'; adEl.textContent = '¡Ya estás en la sala!'; }
+    else {
+      const dx = rm.x - me.x, dz = rm.z - me.z, s = Math.sin(cy), c = Math.cos(cy);
+      agEl.textContent = '▲'; agEl.style.transform = 'rotate(' + (Math.atan2(dx * c - dz * s, -dx * s - dz * c) * 180 / Math.PI) + 'deg)'; adEl.textContent = Math.round(Math.hypot(dx, dz)) + ' m';
+    }
+  } else if (ph === 'result') {
+    mb.style.display = 'block'; mb.textContent = 'Reunión terminada'; arEl.style.display = 'none'; resEl.style.display = 'block';
+    resEl.innerHTML = mt.arr.map((a, i) => (['🥇', '🥈', '🥉'][i] || (i + 1) + '.') + ' ' + esc(a.name) + ' — ' + a.t + ' s (+' + a.pts + ')').join('<br>') + (mt.late.length ? '<br>Tarde: ' + mt.late.map(esc).join(', ') : '');
+  } else { mb.style.display = arEl.style.display = resEl.style.display = 'none'; }
+}
 
 function step(dt) {
   const ix = (k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0), iz = (k.KeyS || k.ArrowDown ? 1 : 0) - (k.KeyW || k.ArrowUp ? 1 : 0);
@@ -278,7 +373,7 @@ let last = performance.now();
     a.position.lerp(tmp.set(a.tg.x, 0, a.tg.z), .3); a.rotation.y = a.tg.ry;
     anim(a, Math.hypot(a.position.x - px, a.position.z - pz) / dt, dt); fx(a, dt);
   });
-  nEl.textContent = (others.size + 1) + ' en línea';
+  nEl.textContent = (others.size + 1) + ' en línea · ' + myScore + ' pts'; meetHud();
   clouds.forEach(c => { c.position.x += dt * .8; if (c.position.x > 120) c.position.x = -120; });
   cam.position.lerp(tmp.set(me.x + Math.sin(cy) * 12, 9, me.z + Math.cos(cy) * 12), .12); cam.lookAt(me.x, 1, me.z);
   sun.position.set(me.x + 18, 32, me.z + 12); sun.target.position.set(me.x, 0, me.z);
